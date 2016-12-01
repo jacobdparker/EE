@@ -1,3 +1,7 @@
+;This program allows the selection of an ee.sav file that you wish to
+;analyze.  It reads in the files and sets up ee common blocks.
+
+
 pro eerestore
 
   common widget_environment, img, didx, tidx, mouseread
@@ -21,19 +25,26 @@ pro eerestore
 
      rasterfile = dialog_pickfile(title='Select L2 Raster File', path=rasterdir)
      sjifile = dialog_pickfile(title='Select L2 SJI File', path=rasterdir)
+     save, img,didx,tidx,mouseread,rasterfile,rasterdir,sjifile, SiIV_EE_map, file = rasterdir+'ee.sav' 
+   ;Note that all the variables & both common blocks are saved, because we 
+   ;might need them to /resume later.
+     foo=dialog_message('saved '+rasterdir+'ee.sav', /information)
   endif
 
 
   message,'Reading SJI data...',/information
   read_iris_l2, sjifile, sjiindex, sjidata
-  sjidata[where(sjidata eq -200)]=!values.f_nan
+  ;sjidata[where(sjidata eq -200)]=!values.f_nan
 
   message,'Reading raster data...',/information
   read_iris_l2, rasterfile, rasterindex, rasterdata, WAVE= 'Si IV'
-  rasterdata[where(rasterdata eq -200)]=!values.f_nan
+  ;rasterdata[where(rasterdata eq -200)]=!values.f_nan
 
-  message,'Subtracting raster background...',/information
-  dark_model = fuv_bg_model(rasterdata, percentile=35, $
-                            bad_data=!values.f_nan) ;background subtraction
-
+  ;Data reduction
+  message,'Despiking...', /informational
+  rasterdata = despik(temporary(rasterdata),  sigmas=4.0, Niter=10, min_std=4.0) ;DESPIKE.
+  message,'Removing instrumental background...', /informational
+  dark_model = fuv_bg_model(rasterdata, percentile=35, /replace) ;background subtraction
+  
+  
 end

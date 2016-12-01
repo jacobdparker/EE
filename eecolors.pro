@@ -6,10 +6,10 @@
 ;; interesting color profile
 
 ;CALLING SEQUENCE:
-;  eemovie, [/mencoder]
-;
+;  eecolors, ee_event
 ;INPUT PARAMETERS:
-;  n/a
+;
+;  ee_event
 ;
 ;KEYWORDS:
 ;  
@@ -30,41 +30,69 @@ w = getwindows()
  
 
   raster_size= size(rasterdata)
-  x0 = mouseread.x0[ee_event]
-  x1 = mouseread.x1[ee_event]
-  y0 = mouseread.y0[ee_event]
-  y1 = mouseread.y1[ee_event]
-  wavemin = rasterindex[x0].wavemin
-  wavemax = rasterindex[x0].wavemax
+  
+  wavemin = rasterindex[0].wavemin
+  wavemax = rasterindex[0].wavemax
   wavesz = raster_size[1]
-  wavedelta = (wavemax-wavemin)/wavesz
-  wavelength = [wavemin:wavemax:wavedelta]
+  lambda = wavemin + rasterindex[0].cdelt1*findgen(rasterindex[0].naxis1)
+   ;wavelength axis, Angstroms
+lambda0 = rasterindex.wavelnth  ;central wavelength for Si IV.
+c = 3e5 ;speed of light, km/s
+velocity = c * (lambda - lambda0)/lambda0 ;velocity axis, km/s
 
-  doppler_shift = 299792.458*(wavelength-rasterindex[x0].wavelnth)/rasterindex[x0].wavelnth
-  STOP
-  linecenter = max(where(wavelength lt rasterindex[x0].wavelnth))+1
+explosive_threshold = 60.0      ;km/s. SiIV has T=10^4.8, c_s = 40 km/s.
+explosive_velocities = abs(velocity) gt explosive_threshold
 
-  ;slit = image(rasterdata[*,y0:y1,x0+frame])
-  ;slit.xr = [linecenter-10,linecenter+10]
+blue = fltarr(raster_size[3],raster_size[2])
+red = blue
+green = red
 
-  time = x1-x0
-  
-  
- 
-for i = 1,time-1 do begin
-   
-   ;; con = surface(rasterdata[*,y0:y1,x0+i],/current)
-   ;; con.refresh,/disable
-   ;; con.rotate,/reset
-   ;; con.rotate,-90, /xaxis
-   ;; con.xr = [linecenter-20,linecenter+20]
-   
-   ;; con.refresh
-   surface,rasterdata[*,y0:y1,x0+i],doppler_shift,[y0:y1],xr=[linecenter-20,linecenter+20]
-   wait,.125
-   ;con.erase
-   
+
+
+for i=0,raster_size(3)-1 do begin
+test = total(rasterdata[where(velocity lt -explosive_threshold),*,i],1)
+   blue(i,*)= total(rasterdata[where(velocity lt -explosive_threshold),*,i],1)
+   red(i,*) = total(rasterdata[where(velocity gt explosive_threshold),*,i],1)
+   green(i,*) = total(rasterdata[where(abs(velocity) lt explosive_threshold),*,i],1)
+
 end
+
+
+ee_count = max(where(mouseread.x0 gt 0))
+  x0 = mouseread.x0[0:ee_count]
+  x1 = mouseread.x1[0:ee_count]
+  y0 = mouseread.y0[0:ee_count]
+  y1 = mouseread.y1[0:ee_count]
+
+  im = make_array(raster_size(3),raster_size(2),3)
+
+for i = 0,ee_count do begin
+  im(x0[i],y0[i],0) = red[x0[i]:x1[i],y0[i]:y1[i]]
+  im(x0[i],y0[i],1) = green[x0[i]:x1[i],y0[i]:y1[i]]
+  im(x0[i],y0[i],2) = blue[x0[i]:x1[i],y0[i]:y1[i]]
+endfor
+  
+
+  ;event_color = [[[red[x0:x1,y0:y1]]],[[green[x0:x1,y0:y1]]],[[blue[x0:x1,y0:y1]]]]
+
+img = image(im,dimensions=[1600,900],pos = [.1,.1,.9,.9])
+
+;;  time = x1-x0
+  
+;; for i = 0,time-1 do begin
+   
+;;    ;; con = surface(rasterdata[*,y0:y1,x0+i],/current)
+;;    ;; con.refresh,/disable
+;;    ;; con.rotate,/reset
+;;    ;; con.rotate,-90, /xaxis
+;;    ;; con.xr = [linecenter-20,linecenter+20]
+   
+;;    ;; con.refresh
+;;    surface,rasterdata[*,y0:y1,x0+i],velocity,[y0:y1],xr=[-100,100]
+;;    wait,.125
+;;    ;con.erase
+   
+;; end
 
   
 end
