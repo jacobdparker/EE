@@ -5,7 +5,7 @@
 pro eerestore
 
   common widget_environment, img, didx, tidx, mouseread
-  common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map
+  common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map, goodmap
   common data, rasterindex,rasterdata,sjiindex,sjidata
 
 
@@ -25,7 +25,7 @@ pro eerestore
 
      rasterfile = dialog_pickfile(title='Select L2 Raster File', path=rasterdir)
      sjifile = dialog_pickfile(title='Select L2 SJI File', path=rasterdir)
-     save, img,didx,tidx,mouseread,rasterfile,rasterdir,sjifile, SiIV_EE_map, file = rasterdir+'ee.sav' 
+     save, img,didx,tidx,mouseread,rasterfile,rasterdir,sjifile, SiIV_EE_map,goodmap, file = rasterdir+'ee.sav' 
    ;Note that all the variables & both common blocks are saved, because we 
    ;might need them to /resume later.
      foo=dialog_message('saved '+rasterdir+'ee.sav', /information)
@@ -42,7 +42,7 @@ pro eerestore
 
   ;Data reduction
   message,'Despiking...', /informational
-  rasterdata = despik(temporary(rasterdata),  sigmas=4.0, Niter=10, min_std=4.0) ;DESPIKE.
+  rasterdata = despik(temporary(rasterdata),  sigmas=4.0, Niter=10, min_std=4.0, goodmap=goodmap, /restore) ;DESPIKE.
   message,'Removing instrumental background...', /informational
   dark_model = fuv_bg_model(rasterdata, percentile=35, /replace) ;background subtraction
   

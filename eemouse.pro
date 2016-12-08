@@ -4,7 +4,7 @@
 pro ee_structify, foo 
    ;foo is a dummy argument required by kill_notify mechanism.
 common widget_environment, img, didx, tidx, mouseread
-common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map
+common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map, goodmap
 
 rectify_mouseread ;Invoke this subroutine of saj_select_boxes to ensure x0<x1, y0<y1.
 
@@ -26,7 +26,7 @@ end
 pro ee_resume
 
 common widget_environment, img, didx, tidx, mouseread
-common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map
+common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map, goodmap
 
 ;Load an ee.sav file.
 eefile = dialog_pickfile(title='Select ee.sav file', get_path=new_rasterdir) 
@@ -107,7 +107,7 @@ if keyword_set(resume) then begin
    ee_resume ;Separate routine eliminates collision of common blocks, i hope...
    return
 endif
-common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map
+common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map, goodmap
 ;Load a new L2 data set.
 rasterfile = dialog_pickfile(title='Select L2 Raster File', get_path=rasterdir)
 read_iris_l2, rasterfile, SiIV_index, SiIV_data, wave = 'Si IV'
@@ -115,7 +115,7 @@ sjifile = dialog_pickfile(title='Select L2 SJI File', path=rasterdir)
 
 ;Data reduction
 message,'Despiking...', /informational
-SiIV_data = despik(temporary(SiIV_data),  sigmas=4.0, Niter=10, min_std=4.0) ;DESPIKE.
+SiIV_data = despik(temporary(SiIV_data),  sigmas=4.0, Niter=10, min_std=4.0,goodmap=goodmap) ;DESPIKE.
 message,'Removing instrumental background...', /informational
 dark_model = fuv_bg_model(SiIV_data, percentile=35, /replace) ;background subtraction
 

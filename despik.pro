@@ -34,9 +34,11 @@
 ;  FFT convolution routine.
 ;MODIFICATION HISTORY:
 ;  2013-Nov-27  C. Kankelborg
+;  2016-12-8 J. Parker  Added restore functionality if goodmap has
+;  already been generated on a previous run
 
 function despik, data, sigmas=sigmas, Niter=Niter, kernel=kernel, min_std=min_std, $
-   silent=silent, goodmap=goodmap, mode=mode
+   silent=silent, goodmap=goodmap, mode=mode, restore=restore
 
 if not keyword_set(silent) then begin 
    print, systime()+' DESPIK started on array of ', n_elements(data),' elements.'
@@ -73,6 +75,11 @@ if not keyword_set(kernel) then begin
    endcase
 endif
 
+
+;If goodmap exists then skip identifying through restore keyword.
+if not keyword_set(restore) then begin
+
+
 ;Identify bad pixels
 goodmap = data*0.0 + 1.0 ;Map of good pixels. An array same size as data, initially all 1's
 for i=1, Niter do begin
@@ -99,6 +106,7 @@ for i=1, Niter do begin
    goodmap[bad[newly_bad]] = 0.0
 endfor
 
+endif 
 
 if not keyword_set(silent) then print,'Step (2): Replacing bad pixels'
 
