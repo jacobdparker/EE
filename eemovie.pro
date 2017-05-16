@@ -79,7 +79,8 @@ pro eemovie, mencoder=mencoder
   rastbyte = bytscl(img, lohi[0], lohi[1])
 
   ;redefine box colors
-  mouseread.color=round(255.*randomu(seed, n_elements(mouseread.color)))
+  ;mouseread.color=round(255.*randomu(seed, n_elements(mouseread.color)))
+  mouseread.color=round(findgen(mouseread.count)/(mouseread.count)*254)+1
 
   ;Work out sizes of things.
   rastsize = size(rasterdata)

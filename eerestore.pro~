@@ -54,9 +54,9 @@ pro eerestore
 
    message,'Despiking OI...', /informational
  
-si_1403_data = despik(si_1403_data,  sigmas=4.0, Niter=10, min_std=4.0) ;DESPIKE.
+fe_data = despik(fe_data,  sigmas=4.0, Niter=10, min_std=4.0) ;DESPIKE.
   message,'Removing instrumental background...', /informational
-  dark_model = fuv_bg_model(si_1403_data, percentile=35, /replace) ;background subtraction
+  dark_model = fuv_bg_model(fe_data, percentile=35, /replace) ;background subtraction
 
   
   

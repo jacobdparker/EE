@@ -144,7 +144,7 @@ endif
 ;Call saj_select_boxes   
 common widget_environment, img, didx, tidx, mouseread 
    ;make results of saj_select_boxes available in this scope.
-saj_select_boxes, SiIV_EE_map>50<500  ;?? Arbitrary thresholding here ??
+saj_select_boxes, SiIV_EE_map>100<500  ;?? Arbitrary thresholding here ??
 widget_control, didx.base, kill_notify='ee_structify'
    ;When select_boxes quits, didx.base will be destroyed, and the result
    ;will be a call to ee_structify.

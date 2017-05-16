@@ -16,7 +16,7 @@
 ;MODIFICATION HISTORY:
 
 
-pro eecolors,ee_event=ee_event, single=single
+pro eecolors,ee_event=ee_event, single=single,event_color=event_color,noplot=noplot
 
 w = getwindows()
   if n_elements(w) gt 1 then begin
@@ -40,8 +40,18 @@ lambda0 = rasterindex.wavelnth  ;central wavelength for Si IV.
 c = 3e5 ;speed of light, km/s
 velocity = c * (lambda - lambda0)/lambda0 ;velocity axis, km/s
 
-explosive_threshold = 40.0      ;km/s. SiIV has T=10^4.8, c_s = 40 km/s.
-explosive_velocities = abs(velocity) gt explosive_threshold
+explosive_threshold = 60.0      ;km/s. SiIV has T=10^4.8, c_s = 40 km/s.
+doppler_max = 300 ;km/s avoiding integrating over adjacent spectral lines
+
+vel_max = abs(velocity) lt doppler_max
+blue_vel = velocity lt -explosive_threshold
+red_vel = velocity gt explosive_threshold
+
+
+
+blue_vel = where(vel_max+blue_vel eq 2)
+red_vel = where(vel_max+red_vel eq 2)
+
 
 blue = fltarr(raster_size[3],raster_size[2])
 red = blue
@@ -50,34 +60,16 @@ green = red
 
 
 for i=0,raster_size(3)-1 do begin
-test = total(rasterdata[where(velocity lt -explosive_threshold),*,i],1)
-   blue(i,*)= total(rasterdata[where(velocity lt -explosive_threshold),*,i],1)
-   red(i,*) = total(rasterdata[where(velocity gt explosive_threshold),*,i],1)
+
+   blue(i,*)= total(rasterdata[blue_vel,*,i],1)
+   red(i,*) = total(rasterdata[red_vel,*,i],1)
    green(i,*) = total(rasterdata[where(abs(velocity) lt explosive_threshold),*,i],1)
 end
 
-;combine blue and red channel
-
-blue += red
-red = blue
 
 
-  ;; img=sqrt(blue)
-  ;; good=where(finite(img) eq 1)
-  ;; lohi=prank(img[good], [0.1,99.9])
-  ;; bluebyte = bytscl(img, lohi[0], lohi[1])
 
-  ;; img=sqrt(green)
-  ;; good=where(finite(img) eq 1)
-  ;; lohi=prank(img[good], [0.1,99.9])
-  ;; greenbyte = bytscl(img, lohi[0], lohi[1])
-
-  ;; img=sqrt(red)
-  ;; good=where(finite(img) eq 1)
-  ;; lohi=prank(img[good], [0.1,99.9])
-  ;; redbyte = bytscl(img, lohi[0], lohi[1])
-
-ee_count = max(where(mouseread.x0 gt 0))
+ee_count = mouseread.count
   x0 = mouseread.x0[0:ee_count]
   x1 = mouseread.x1[0:ee_count]
   y0 = mouseread.y0[0:ee_count]
@@ -90,8 +82,17 @@ ee_count = max(where(mouseread.x0 gt 0))
      im(x0[i],y0[i],0) = red[x0[i]:x1[i],y0[i]:y1[i]]
      im(x0[i],y0[i],1) = green[x0[i]:x1[i],y0[i]:y1[i]]
      im(x0[i],y0[i],2) = blue[x0[i]:x1[i],y0[i]:y1[i]]
-     
+     event_color = im(x0[i]:x1[i],y0[i]:y1[i],*)
+     event_sz = size(event_color)
+
+     if keyword_set(noplot) then begin
+
      endif else begin
+        img = image(event_color,margin=0,dimensions=[event_sz(1),event_sz(2)] )
+     endelse
+     
+  endif else begin
+     
         
 
 for i = 0,ee_count do begin
@@ -101,16 +102,12 @@ for i = 0,ee_count do begin
    im(x0[i],y0[i],2) = blue[x0[i]:x1[i],y0[i]:y1[i]]
    
 
-  ;im(x0[i],y0[i],0) = bytscl(img[x0[i]:x1[i],y0[i]:y1[i],*])
-   
-endfor
+ endfor
 
+img = image(im,dimensions=[1600,900],pos = [.01,.01,.99,.99])
 endelse
      
 
-  ;event_color = [[[red[x0:x1,y0:y1]]],[[green[x0:x1,y0:y1]]],[[blue[x0:x1,y0:y1]]]]
-
-img = image(im,dimensions=[1600,900],pos = [.01,.01,.99,.99])
 
 ;;  time = x1-x0
   

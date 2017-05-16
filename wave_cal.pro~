@@ -1,0 +1,8 @@
+;Take in IRIS O I raster data and caculate an FUV wavelength offset
+
+function wave_cal,data,index
+
+  data = total(data,2)
+  STOP
+
+end
