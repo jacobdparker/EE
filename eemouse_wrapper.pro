@@ -31,7 +31,7 @@
      ee_dataclear,ee_dir
 ;This simply renames the ee.sav file with a data in case there were
 ;multiple obs on one day.
-     file_move,data_path+'ee.sav',data_path+'ee_'+strmid(ee_dir,17,6,/reverse_offset)+'.sav'
+     file_move,data_path+'ee.sav',data_path+'ee'+strmid(ee_dir,17,6,/reverse_offset)+'.sav'
      STOP,'If you would like to select more events press .c otherwise just close the terminal.'
 
   endwhile
