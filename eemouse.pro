@@ -1,6 +1,8 @@
 ;Reform mouseread structure into ee structure. This routine is called 
 ;via the widget_control kill_notify mechanism when the select_boxes 
 ;interface is exited.
+
+
 pro ee_structify, foo 
    ;foo is a dummy argument required by kill_notify mechanism.
 common widget_environment, img, didx, tidx, mouseread
@@ -16,6 +18,7 @@ if (mouseread.count gt 0) then begin
    ee.y1 = mouseread.y1[0:mouseread.count-1]
 endif
 
+
 save, /variables, /comm, file = rasterdir+'ee.sav' 
    ;Note that all the variables & both common blocks are saved, because we 
    ;might need them to /resume later.
@@ -23,13 +26,13 @@ foo=dialog_message('saved '+rasterdir+'ee.sav', /information)
 end
 
 
-pro ee_resume
+pro ee_resume,startdir=startdir
 
 common widget_environment, img, didx, tidx, mouseread
 common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map, goodmap
 
 ;Load an ee.sav file.
-eefile = dialog_pickfile(title='Select ee.sav file', get_path=new_rasterdir) 
+eefile = dialog_pickfile(title='Select ee.sav file', path = startdir, get_path=new_rasterdir) 
    ;rasterdir gets redefine here.
 restore, eefile
 
@@ -43,7 +46,7 @@ if new_rasterdir ne rasterdir then begin
 endif
 
 ;Call saj_select_boxes   
-saj_select_boxes, SiIV_EE_map>100<500  ;?? Arbitrary thresholding here ??
+saj_select_boxes, SiIV_EE_map>70<2000  ;?? Arbitrary thresholding here ??
 didx_save_for_later = didx
 tidx_save_for_later = tidx
 restore, eefile ;Restore again to recover contents of widget_environment CB!
@@ -92,8 +95,9 @@ end
 ;     caused problems. Now rasterdir is redefined every time ee.sav is loaded
 ;     using the /resume option, based on where ee.sav was actually found.
 ;     The user is prompted to re-identify rasterfile and sjifile.
-;-
-pro eemouse, resume=resume, preprocess=preprocess
+;  2017-May-17 JDP modified to store ee.sav in the rasterdir and takes an input
+;     directory and filename
+pro eemouse, resume=resume, preprocess=preprocess, startdir=startdir
 
 logo = read_png('mouse.png')
 logosize=size(logo)
@@ -104,14 +108,21 @@ tv, logo, /true
 
 ;Select and load dataset.
 if keyword_set(resume) then begin
-   ee_resume ;Separate routine eliminates collision of common blocks, i hope...
+   ee_resume,startdir=startdir ;Separate routine eliminates collision of common blocks, i hope...
    return
 endif
 common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map, goodmap
 ;Load a new L2 data set.
-rasterfile = dialog_pickfile(title='Select L2 Raster File', get_path=rasterdir)
+
+if keyword_set(startdir) then begin
+   rasterdir = startdir
+   rasterfile = dialog_pickfile(title='Select L2 Raster File', path=rasterdir)
+endif else begin
+   rasterfile = dialog_pickfile(title='Select L2 Raster File', get_path=rasterdir)
+endelse
 read_iris_l2, rasterfile, SiIV_index, SiIV_data, wave = 'Si IV'
 sjifile = dialog_pickfile(title='Select L2 SJI File', path=rasterdir)
+
 
 ;Data reduction
 message,'Despiking...', /informational
@@ -144,7 +155,7 @@ endif
 ;Call saj_select_boxes   
 common widget_environment, img, didx, tidx, mouseread 
    ;make results of saj_select_boxes available in this scope.
-saj_select_boxes, SiIV_EE_map>50<500  ;?? Arbitrary thresholding here ??
+saj_select_boxes, SiIV_EE_map>70<2000                         ;?? Arbitrary thresholding here ??
 widget_control, didx.base, kill_notify='ee_structify'
    ;When select_boxes quits, didx.base will be destroyed, and the result
    ;will be a call to ee_structify.
