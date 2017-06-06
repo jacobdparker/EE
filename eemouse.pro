@@ -99,12 +99,12 @@ end
 ;     directory and filename
 pro eemouse, resume=resume, preprocess=preprocess, startdir=startdir
 
-logo = read_png('mouse.png')
-logosize=size(logo)
-nxlogo = logosize[2]
-nylogo = logosize[3]
-window, 13, xsize=nxlogo, ysize=nylogo, title="Explosive Mouse Events!"
-tv, logo, /true
+;logo = read_png('mouse.png')
+;logosize=size(logo)
+;nxlogo = logosize[2]
+;nylogo = logosize[3]
+;window, 13, xsize=nxlogo, ysize=nylogo, title="Explosive Mouse Events!"
+;tv, logo, /true
 
 ;Select and load dataset.
 if keyword_set(resume) then begin

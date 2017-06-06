@@ -5,8 +5,8 @@
   logosize=size(logo)
   nxlogo = logosize[2]
   nylogo = logosize[3]
-  window, 13, xsize=nxlogo, ysize=nylogo, title="Did you say Mouse Rapper?"
-  tv, logo, /true
+ ; window, 13, xsize=nxlogo, ysize=nylogo, title="Did you say Mouse Rapper?"
+  ;tv, logo, /true
   
   restore,'ee_obs_paths.sav'
 
@@ -20,8 +20,8 @@
      ee_dir  = ee_obs_path[wrapper_state] 
      ee_gunzip, ee_dir, data_path
 ;Check if the ee.sav file already exists
-     if file_search(data_path,'*.sav') then resume = 1 else resume = 0
-        
+     
+     if file_search(data_path,'ee.sav') ne "" then resume = 1 else resume = 0
      eemouse,startdir = data_path,resume = resume
         
   
