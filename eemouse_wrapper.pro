@@ -1,10 +1,10 @@
 ;description is in the name
 
 ;is it rapper or wrapper?
-  logo = read_png('rapping_mouse.png')
-  logosize=size(logo)
-  nxlogo = logosize[2]
-  nylogo = logosize[3]
+ ; logo = read_png('rapping_mouse.png')
+  ;logosize=size(logo)
+  ;nxlogo = logosize[2]
+  ;nylogo = logosize[3]
  ; window, 13, xsize=nxlogo, ysize=nylogo, title="Did you say Mouse Rapper?"
   ;tv, logo, /true
   

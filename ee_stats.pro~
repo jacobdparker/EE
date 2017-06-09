@@ -1,0 +1,7 @@
+pro ee_timedist, dat_array
+
+  depth=size(array)[3]
+
+
+
+  

@@ -1,0 +1,38 @@
+;FUNCTION: ee_data_search
+;PURPOSE: Make and return array of x0, x1, y0, y1 values for each box in each
+;observation
+;VARIABLES:
+;  files=all filepaths to ee.sav files containing box data
+;  arr=array that contains data of x0, x1, y0, y1
+;  vals=temporary array containing box values for each observation
+;RETURNS: arr
+;AUTHOR(S): A.E. Bartz & J.D. Parker, 6/8/17
+function ee_data_search
+
+;File search the EE_Data directory
+  files=file_search("../EE_Data","ee*.sav")
+  arr=fltarr(100,4,n_elements(files))
+  
+;Loop over i and restore
+  for i=0,n_elements(files)-1 do begin
+     restore, files[i]
+     vals=[[mouseread.x0], [mouseread.x1], [mouseread.y0], [mouseread.y1]]
+     arr[0,0,i]=vals
+  endfor
+     
+  return, arr
+end
+
+;FUNCTION: ee_event_counts
+;PURPOSE: Make and return array containing the total number of boxes drawn
+;for all EE observations
+;VARIABLES:
+;RETURNS:
+;AUTHOR(S): A.E. Bartz, 6/9/17
+function ee_event_counts
+
+  files=file_search("../EE_Data","ee*.sav")
+  n=n_elements(files)
+  counts=make_array(n)
+  
+  
