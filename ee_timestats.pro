@@ -7,17 +7,20 @@
 ; corresponds to the length of the event
 ; 5. Save plots to a directory of time plots
 ;PARAMETERS:
-;  dat_array=4x100x31 array containing dimension data for event boxes
+;  dat_array=4x100x29 array containing dimension data for event boxes
 ;  dates=array of Julian dates of each observation
+;  counts=array of number of boxes in each image
 ;VARIABLES:
 ;  depth=number of observations
 ;  lengths=2D array of lengths of each event in each observation
 ;  avg_lens=array of average length of time of an event during each
-;  observation
+;     observation
 ;  dev_lens=array of standard deviations of lengths of each event
-;  during each observation
+;     during each observation
+;  obs=counting variable
+;  x0,x1=temporary arrays containing beginning and ending time
 ;RETURNS: N/A
-;SAVES: Plots are saved into a directory containing time plots
+;SAVES: Plots are saved into a directory containing time plots (TBA)
 ;AUTHOR(S): A.E. Bartz, 6/9/17
 pro ee_timestats, dat_array, dates, counts
 
