@@ -19,10 +19,9 @@
 ;RETURNS: N/A
 ;SAVES: Plots are saved into a directory containing time plots
 ;AUTHOR(S): A.E. Bartz, 6/9/17
-pro ee_timedist, dat_array, dates
+pro ee_timestats, dat_array, dates, counts
 
-  depth=size(dat_array)
-  depth=depth[3]
+  depth=n_elements(counts)
   lengths=fltarr(100,depth)
   avg_lens=fltarr(depth)
   dev_lens=fltarr(depth)
@@ -31,6 +30,9 @@ pro ee_timedist, dat_array, dates
   for obs=0,depth-1 do begin
      x0=dat_array[*,0,obs]
      x1=dat_array[*,1,obs]
+
+     x0=x0[0:counts[obs]]
+     x1=x1[0:counts[obs]]
      ;The absolute value is because some boxes were drawn backwards
      ;(Better to be safe than sorry!)
      lengths[obs]=abs(x1-x0)
@@ -42,5 +44,10 @@ pro ee_timedist, dat_array, dates
   print, "The average time of an event for all observations is ", mean(avg_lens)
   print, "The standard deviation of time of all observations is ", stddev(avg_lens)
 
+  ;Plot the average length of each observation, with error bars
+  bar_plot, avg_lens[0:18], barnames=string(dates[0:18]), $
+            title='Fuck you, IDL', /ROTATE   
+  ;errplot, string(dates[0:18]), avg_lens[0:18]-dev_lens[0:18], $
+          ; avg_lens[0:18]+dev_lens[0:18], /OVERPLOT
   
 end

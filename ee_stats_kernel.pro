@@ -12,18 +12,34 @@
 ;SAVES:
 ;AUTHOR(S): A.E.Bartz 6/9/17
 
-functions=['ee_data_search','ee_timestats']
-RESOLVE_ROUTINE, functions, /COMPILE_FULL_FILE
+
+RESOLVE_ROUTINE, 'ee_pathdates', /IS_FUNCTION
+;RESOLVE_ROUTINE, 'ee_timestats'
 
 print, "Initializing data..."
-files=file_search("../EE_Data","ee*.sav")
-arr=ee_box_data(files)
-counts=ee_event_counts(files)
-dates=ee_pathdates
+if ISA(files) then print, 'Files exist; continuing' else begin
+   print, 'Finding data files...'
+   files=file_search("../EE_Data","ee*.sav")
+endelse
+
+if ISA(arr) then print, 'Data boxes assigned; continuing' else begin
+   print, 'Assigning data boxes...'
+   arr=ee_box_data(files)
+endelse
+   
+if ISA(counts) then print, 'Event counts assigned; continuing' else begin
+   print, 'Assigning event counts...'
+   counts=ee_event_counts(files)
+endelse
+
+if ISA(dates) then print, 'Event dates found; continuing' else begin
+   print, 'Finding event dates...'
+   dates=ee_pathdates(n_elements(files))
+endelse
 
 i=0
 while i eq 0 do begin
-   print, format='(%"\nThis program performs statistical analyses on selected IRIS slitjaw data. Type one of the letters below to perform its corresponding analysis.")'
+   print, format='(%"\nThis program performs statistical analyses on selected IRIS slitjaw data. \nType one of the letters below to perform its corresponding analysis.")'
    print, format='(%"t - time statistics\ny - position statistics\nc - overall statistics\nq - quit the program")'
    input=''
    wait, 1
@@ -31,7 +47,7 @@ while i eq 0 do begin
 
    case input of
       't': begin
-         print, "Here is where time stuff will go when I know how this works."
+         ee_timestats, arr, dates, counts
          wait, 1
          break
       end
