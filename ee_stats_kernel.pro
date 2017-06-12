@@ -53,27 +53,28 @@ while i eq 0 do begin
       end
 
       'y': begin
-         print, "Position statistics not yet implemented."
+         ee_ystats, arr, dates, counts
          wait, 1
-         j=0
-         while j eq 0 do begin
-            char=''
-            read, char, PROMPT='Continue program? (y/n) '
-            if (char eq 'y') or (char eq 'yes') then begin
-               wait, 1
-               break
-               endif
-            if (char eq 'n') or (char eq 'no') then begin
-               print, "Exiting..."
-               wait, 2
-               i=1
-               break
-            endif else begin
-               print, "Invalid input."
-               wait, 1
-               continue
-            endelse
-         endwhile   
+         ;; j=0
+         ;; while j eq 0 do begin
+         ;;    char=''
+         ;;    read, char, PROMPT='Continue program? (y/n) '
+         ;;    if (char eq 'y') or (char eq 'yes') then begin
+         ;;       wait, 1
+         ;;       break
+         ;;       endif
+         ;;    if (char eq 'n') or (char eq 'no') then begin
+         ;;       print, "Exiting..."
+         ;;       wait, 2
+         ;;       i=1
+         ;;       break
+         ;;    endif else begin
+         ;;       print, "Invalid input."
+         ;;       wait, 1
+         ;;       continue
+         ;;    endelse
+         ;; endwhile 
+         
       end
 
       'c': begin

@@ -41,7 +41,7 @@ pro ee_ystats, dat_array, dates, counts
      y1=y1[0:counts[obs]]
      
      ;Absolute value due to some boxes drawn backwards
-     lengths[obs]=abs(y1-y0)
+     widths[obs]=abs(y1-y0)
      avg_wids[obs]=mean(abs(y1-y0))
      dev_wids[obs]=stdev(abs(y1-y0))
   endfor

@@ -48,9 +48,11 @@ pro ee_timestats, dat_array, dates, counts
   print, "The standard deviation of time of all observations is ", stddev(avg_lens)
 
   ;Plot the average length of each observation, with error bars
-  bar_plot, avg_lens[0:18], barnames=string(dates[0:18]), $
-            title='Fuck you, IDL', /ROTATE   
+  ;bar_plot, avg_lens[0:18], barnames=string(dates[0:18]), $
+  ;          title='Fuck you, IDL', /ROTATE   
   ;errplot, string(dates[0:18]), avg_lens[0:18]-dev_lens[0:18], $
-          ; avg_lens[0:18]+dev_lens[0:18], /OVERPLOT
+  ;          avg_lens[0:18]+dev_lens[0:18], /OVERPLOT
+
+  b=barplot(dates, avg_lens) ;This should throw the same error as emailed
   
 end
