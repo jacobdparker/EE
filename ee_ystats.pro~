@@ -1,0 +1,22 @@
+;PROGRAM: ee_ystats
+;PURPOSE:
+; 1. Compute spatial distribution of each boxed event from eemouse
+; 2. Compute average physical width for all events
+; 3. Compute average physical width of event for each observation and plot
+; 4. Plot each event against its date such that the size of the dot
+; corresponds to the physical width of the event
+; 5. Save plots to a directory of width plots
+;PARAMETERS:
+;  dat_array=4x100x31 array containing dimension data for event boxes
+;  dates=array of Julian dates of each observation
+;  count=array of number of boxes on each image
+;VARIABLES:
+;  depth=number of observations
+;  lengths=2D array of lengths of each event in each observation
+;  avg_lens=array of average width of an event during each
+;  observation
+;  dev_lens=array of standard deviations of widths of each event
+;  during each observation
+;RETURNS: N/A
+;SAVES: Plots are saved into a directory containing width plots (TBA)
+;AUTHOR(S): A.E. Bartz, 6/12/17
