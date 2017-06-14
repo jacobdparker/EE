@@ -19,38 +19,44 @@
 ;  during each observation
 ;  obs=counting variable
 ;  y0,y1=temporary arrays containing top and bottom position
-;RETURNS: N/A
 ;SAVES: Plots are saved into a directory containing width plots (TBA)
 ;AUTHOR(S): A.E. Bartz, 6/12/17
 
 pro ee_ystats, dat_array, dates, counts
 
-  ;Initialize arrays
+;Initialize arrays
   depth=n_elements(counts)
   widths=fltarr(100,depth)
   avg_wids=fltarr(depth)
   dev_wids=fltarr(depth)
 
-  ;Compute arrays containing each event's width and the average width
+;Compute arrays containing each event's width and the average width
   for obs=0,depth-1 do begin
      y0=dat_array[*,2,obs]
      y1=dat_array[*,3,obs]
 
-     ;Crop data arrays to actual number of events to omit extra zeroes
+;Crop data arrays to actual number of events to omit extra zeroes
      y0=y0[0:counts[obs]]
      y1=y1[0:counts[obs]]
      
-     ;Absolute value due to some boxes drawn backwards
+;Absolute value due to some boxes drawn backwards
      widths[obs]=abs(y1-y0)
      avg_wids[obs]=mean(abs(y1-y0))
      dev_wids[obs]=stdev(abs(y1-y0))
   endfor
 
-  ;Compute & print average length of time for all events
-  print, "The average physical width of an event for all observations is ",$
-         mean(avg_wids)
-  print, "The standard deviation of width for all observations is ",$
-         stddev(avg_wids)
-
+;Compute & print average length of time for all events
+  print, "The average physical width of an event for all observations is "+$
+         strcompress(mean(avg_wids), /remove_all)+$
+         " units and the standard deviation is "+$
+         strcompress(stddev(avg_wids), /remove_all)+" units"
+  
+;Plot the average width of each observation with or without error bars
+  plot, dates, avg_wids,$
+        title='Average width of event at all observations', $
+        XTITLE='Julian date', YTITLE='Average width of an event (unit)',$
+        psym=1
+  ;errplot, dates, avg_wids-dev_wids, avg_wids+dev_wids, /OVERPLOT
+  
 end
 

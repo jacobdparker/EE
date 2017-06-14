@@ -1,0 +1,54 @@
+;PROCEDURE: ee_overallstats
+;PURPOSE: Perform statistics on the entire IRIS data set
+;PARAMETERS:
+;VARIABLES:
+;SAVES:
+;AUTHOR(S): A.E. Bartz 6/14/17
+
+pro ee_overallstats, dat_array, dates, counts
+
+  depth=n_elements(counts)
+  b14=0
+  o14=0
+  b15=0
+  o15=0
+  b16=0
+  o16=0
+  b17=0
+  o17=0
+
+;Bin boxes by year and count number of observations per year
+  for obs=0,depth-1 do begin
+     if ((dates[obs] ge 2456658.5) AND (dates[obs] lt 2457023.5)) then begin
+        b14=b14+counts[obs]
+        o14++
+     endif
+     if ((dates[obs] ge 2457023.5) AND (dates[obs] lt 2457388.5)) then begin
+        b15=b15+counts[obs]
+        o15++
+     endif
+     if ((dates[obs] ge 2457388.5) AND (dates[obs] lt 2457754.5)) then begin
+        b16=b16+counts[obs]
+        o16++
+     endif
+     if dates[obs] ge 2457754.5 then begin
+        b17=b17+counts[obs]
+        o17++
+     endif
+  endfor
+
+  boxtots=[b14,b15,b16,b17]
+  obstots=[o14,o15,o16,o17]
+  labels=['2014','2015','2016','2017']
+  
+;Bar plot binned boxes
+  bar_plot, boxtots, xrange=[2013,2018], barnames=labels, $
+            title='Number of boxes drawn per year and observations per year',$
+            xtitle='Year',$
+            ytitle='Number of boxes drawn/Number of observations'
+  
+  bar_plot, obstots,  psym=2, /OVER_PLOT
+            
+end
+
+        

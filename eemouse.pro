@@ -121,6 +121,7 @@ endif else begin
    rasterfile = dialog_pickfile(title='Select L2 Raster File', get_path=rasterdir)
 endelse
 read_iris_l2, rasterfile, SiIV_index, SiIV_data, wave = 'Si IV'
+STOP
 sjifile = dialog_pickfile(title='Select L2 SJI File', path=rasterdir)
 
 

@@ -16,7 +16,7 @@
 
  
   
-  while wrapper_state lt n_elements(ee_obs_path)-1 do begin
+  while wrapper_state lt n_elements(ee_obs_path) do begin
      ee_dir  = ee_obs_path[wrapper_state] 
      ee_gunzip, ee_dir, data_path
 ;Check if the ee.sav file already exists
