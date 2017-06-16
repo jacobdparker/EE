@@ -10,16 +10,17 @@
 ;AUTHOR(S): A.E. Bartz, 6/9/17
 function ee_event_counts, files
 
-  ;Restore files
+;Create filepath and counts arrays
   n=n_elements(files)
   counts=make_array(n)
 
-  ;Fill array
+;Fill counts array
+;Currently runs in about 27.5 seconds  
   for i=0,n-1 do begin
      restore, files[i]
      counts[i]=mouseread.count
   endfor
-
+  
   return, counts
 end
 

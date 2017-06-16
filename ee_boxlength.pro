@@ -15,7 +15,7 @@ function ee_boxlength, x0, x1, timefile
   restore, timefile
 
 ;Compute actual times for x0
-     
+ 
   t0=dateobs[x0]
   y0=strmid(t0,0,4)
   m0=strmid(t0,5,2)
@@ -34,7 +34,7 @@ function ee_boxlength, x0, x1, timefile
   s1=strmid(t1,17,6)
   t1=GREG2JUL(m1,d1,y1,h1,mn1,s1)
 ;Compute differences, stored as hours
-  box_len=(abs(t1-t0))*24
+  box_len=(t1-t0)*24
   
 return, box_len
 end

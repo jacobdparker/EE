@@ -97,7 +97,7 @@ end
 ;     The user is prompted to re-identify rasterfile and sjifile.
 ;  2017-May-17 JDP modified to store ee.sav in the rasterdir and takes an input
 ;     directory and filename
-pro eemouse, resume=resume, preprocess=preprocess, startdir=startdir
+pro eemouse, resume=resume, preprocess=preprocess, startdir=startdir, wrapper_state
 
 ;logo = read_png('mouse.png')
 ;logosize=size(logo)
@@ -107,6 +107,7 @@ pro eemouse, resume=resume, preprocess=preprocess, startdir=startdir
 ;tv, logo, /true
 
 ;Select and load dataset.
+
 if keyword_set(resume) then begin
    ee_resume,startdir=startdir ;Separate routine eliminates collision of common blocks, i hope...
    return
@@ -121,7 +122,8 @@ endif else begin
    rasterfile = dialog_pickfile(title='Select L2 Raster File', get_path=rasterdir)
 endelse
 read_iris_l2, rasterfile, SiIV_index, SiIV_data, wave = 'Si IV'
-STOP
+ee_fits_save, siiv_index[0], wrapper_state, rasterdir
+
 sjifile = dialog_pickfile(title='Select L2 SJI File', path=rasterdir)
 
 

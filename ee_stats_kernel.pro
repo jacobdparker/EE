@@ -8,36 +8,33 @@
 ;  dates=array of julian dates of each ee.sav observation
 ;  i,j=counting variables
 ;  input,char=character input read from terminal
-;FIND DESCRIPTIONS OF OUTSOURCED FUNCTIONS IN THEIR INDIVIDUAL FILES
+;FIND DESCRIPTIONS OF OUTSOURCED FUNCTIONS/PROCEDURES IN THEIR INDIVIDUAL FILES
 ;AUTHOR(S): A.E.Bartz 6/9/17
 
+print, "This program performs statistical analyses on IRIS sit and stare data."
 
-print, "Initializing data..."
-if ISA(files) then print, 'Files exist; continuing' else begin
-   print, 'Finding data files...'
+varfile=file_search('variables.sav')
+if varfile ne '' then begin
+   restore, varfile
+   varfile=!NULL                ;free memory
+   print, "Data restored."
+endif else begin
+   print, "Initializing data..."
    files=file_search("../EE_Data","ee_*.sav")
-endelse
-
-if ISA(dates) then print, 'Event dates found; continuing' else begin
    print, 'Finding event dates...'
    dates=ee_pathdates(files)
-endelse
-
-if ISA(arr) then print, 'Data boxes assigned; continuing' else begin
    print, 'Assigning data boxes...'
    arr=ee_box_data(files)
-endelse
-   
-if ISA(counts) then print, 'Event counts assigned; continuing' else begin
    print, 'Assigning event counts...'
    counts=ee_event_counts(files)
 endelse
+files=!NULL                     ;free memory
 
 i=0
 j=0
 while i eq 0 do begin
-   print, format='(%"\nThis program performs statistical analyses on selected IRIS sit and stare data. \nType one of the letters below to perform its corresponding analysis.")'
-   print, format='(%"t - time statistics\ny - position statistics\nc - overall statistics\nw - gimme a second\nq - quit the program")'
+   print, format='(%"\nType one of the letters below to perform its corresponding analysis.")'
+   print, format='(%"t - time statistics\ny - position statistics\nc - overall statistics\ns - scatter plots\nw - gimme a second\nq - quit the program")'
    input=''
    wait, 1
    READ, input, PROMPT='Type an option here: '
@@ -64,8 +61,13 @@ while i eq 0 do begin
       
       'q': begin
          print, "Exiting the program..."
-         wait, 2
          i=1
+         j=1
+         break
+      end
+
+      's': begin
+         ee_scatter, arr, dates, counts
          j=1
          break
       end

@@ -52,15 +52,15 @@ pro ee_overallstats, dat_array, dates, counts
 ;Make arrays of binned values  
   boxtots=[b14,b15,b16,b17]
   obstots=[o14,o15,o16,o17]
-  labels=['2014','2015','2016','2017']
+  labels=[2014,2015,2016,2017]
   
 ;Bar plot binned boxes
-  bar_plot, boxtots, barnames=labels, colors=[50,50,50,50], $
-            title='Number of boxes drawn per year and observations per year',$
-            xtitle='Year',$
-            ytitle='Number of boxes drawn/Number of observations'
-  
-  bar_plot, obstots,  colors=[150,150,150,150], /OVERPLOT
+  b1=barplot(labels,boxtots, /widgets, $
+            title='Total number of boxes and observations per year', $
+            fill_color='magenta', xtitle='Year', $
+            ytitle='Box (teal) and observation (magenta) count')
+  b2=barplot(labels,obstots,/widgets, fill_color='teal',/OVERPLOT, $
+             bottom_values=boxtots)
 
 ;Percentage statistics by year
   boxtotal=total(boxtots)
@@ -69,10 +69,9 @@ pro ee_overallstats, dat_array, dates, counts
   pcent_obs=obstots/obstotal*100
   
   print, format='(%"\nPercentage of observations and boxes drawn by year")'
-  for n=0,3 do  print, labels[n]+": "+$
+  for n=0,3 do print, string(labels[n])+": "+$
          strcompress(pcent_obs[n], /remove_all)+"% of all observations and "+$
          strcompress(pcent_box[n], /remove_all)+"% of all boxes drawn."
-
                                                               
 end
 

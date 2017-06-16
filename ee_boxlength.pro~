@@ -1,43 +1,40 @@
 ;FUNCTION: ee_boxlength
-;PURPOSE: compute time length of box
+;PURPOSE: compute time length of boxes
 ;PARAMETERS:
-;  x0 = beginning position of box
-;  x1 = ending position of box
+;  x0 = beginning positions of boxes
+;  x1 = ending positions of boxes
+;  timefile=filepath to a .sav file containing observation time information
 ;VARIABLES:
-;RETURNS: len
+;  n=number of arrays with lengths to compute
+;  box_len=array of the lengths of boxes drawn in an image
+;RETURNS: box_len
 ;AUTHOR(S): A.E. Bartz 6/14/17
 
-function ee_boxlength, x0, x1
+function ee_boxlength, x0, x1, timefile
 
-  ;Compute total time length of boxes
-  ;Note that 12 hours in regular time is 0.5 in Julian time
-  timefiles=file_search('../EE_Data','dateobs*.sav')
-  obs_time=fltarr(depth)
-  for obs=0,depth-1 do begin
-     ;restore files and set start and end times
-     restore, timefiles[obs]
-     start=dateobs[0]
-     final=dateobs[-1]
-     
-     ;do START conversion
-     y1=strmid(start,0,4)
-     m1=strmid(start,5,2)
-     d1=strmid(start,8,2)
-     h1=strmid(start,11,2)
-     mn1=strmid(start,14,2)
-     s1=strmid(start,17,2)
-     start=GREG2JUL(m1,d1,y1,h1,mn1,s1)
-     
-     ;do FINAL conversion
-     y2=strmid(final,0,4)
-     m2=strmid(final,5,2)
-     d2=strmid(final,8,2)
-     h2=strmid(final,11,2)
-     mn2=strmid(final,14,2)
-     s2=strmid(final,17,2)
-     final=GREG2JUL(m2,d2,y2,h2,mn2,s2)
+  restore, timefile
 
-     ;and now we can find the length (phew)
-     ;Length is stored in hours
-     obs_time[obs]=(final-start)*24
-  endfor
+;Compute actual times for x0
+     
+  t0=dateobs[x0]
+  y0=strmid(t0,0,4)
+  m0=strmid(t0,5,2)
+  d0=strmid(t0,8,2)
+  h0=strmid(t0,11,2)
+  mn0=strmid(t0,14,2)
+  s0=strmid(t0,17,6)
+  t0=GREG2JUL(m0,d0,y0,h0,mn0,s0)
+;Compute actual times for x1
+  t1=dateobs[x1]
+  y1=strmid(t1,0,4)
+  m1=strmid(t1,5,2)
+  d1=strmid(t1,8,2)
+  h1=strmid(t1,11,2)
+  mn1=strmid(t1,14,2)
+  s1=strmid(t1,17,6)
+  t1=GREG2JUL(m1,d1,y1,h1,mn1,s1)
+;Compute differences, stored as hours
+  box_len=(abs(t1-t0))*24
+  
+return, box_len
+end
