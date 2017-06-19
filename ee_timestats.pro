@@ -54,12 +54,6 @@ pro ee_timestats, dat_array, dates, counts, errbars=errbars
      heights[0,obs]=y1-y0
   endfor
 
-;Free memory
-  x0=!null
-  x1=!null
-  y0=!null
-  y1=!null
-  obs_lens=!null
   
 ;Compute & print average length of time for all events
   print, "The average time of an event for all observations is "+$
@@ -71,14 +65,17 @@ pro ee_timestats, dat_array, dates, counts, errbars=errbars
   while i eq 0 do begin
      
      char=''
-     print, format='(%"Which plot do you want to produce?")'
-     print, format='(%"a - average box time length of each observation\nc - cumulative histogram of time vs number of plots drawn\nl - time length of all boxes in all observations\nq - quit and return to kernel")'
+     print, format='(%"\nWhich plot do you want to produce?")'
+     print, format='(%"a - average box time length of each observation\nb - number and average size of boxes by date\nl - time length of all boxes in all observations\nq - quit and return to kernel")'
      read, char, prompt='Type your selection here: '
 
      case char of
         'a': begin
-;Plot the average width of each box
-           
+;Plot the average length of each box per date
+           p=plot(dates, avg_lens, symbol='o', /sym_filled, rgb_table=41, $
+                  linestyle=6, xtitle="Julian date", $
+                  ytitle="Average length of a box (hours)", $
+                  title="Average time length of event box by image")
         end
 
         'l': begin
@@ -96,6 +93,24 @@ pro ee_timestats, dat_array, dates, counts, errbars=errbars
            endfor
         end
 
+        'b': begin
+;Plot number of boxes against date where size of point corresponds to
+;average length
+           mn=min(avg_lens)
+           scale=2.0/(max(avg_lens)-mn)
+           p=plot([dates[0]],[counts[0]],/widgets,symbol='o',linestyle=6, $
+                  sym_transparency=50, xtitle="Julian date", $
+                  ytitle="Box count", yrange=[0,max(counts)+5],$
+                  sym_size=0.5+(avg_lens[0]-mn)*scale, $
+                  sym_color=[0,255,0], xrange=[dates[0]-50,dates[-1]+50],$
+                  title="Box count and length of time")
+           for n=1,depth-1 do begin
+              p=plot([dates[n]],[counts[n]],/overplot, linestyle=6, $
+                     symbol='o', sym_size=1.5+(avg_lens[n]-mn)*scale, $
+                     sym_color=[0,255,255*n/(depth-1)])
+           endfor
+        end
+        
         'q': i=1
 
         else: print, "Invalid input."

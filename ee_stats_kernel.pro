@@ -27,14 +27,14 @@ endif else begin
    arr=ee_box_data(files)
    print, 'Assigning event counts...'
    counts=ee_event_counts(files)
+   files=!NULL                  ;free memory
 endelse
-files=!NULL                     ;free memory
 
 i=0
 j=0
 while i eq 0 do begin
    print, format='(%"\nType one of the letters below to perform its corresponding analysis.")'
-   print, format='(%"t - time statistics\ny - position statistics\nc - overall statistics\ns - scatter plots\nw - gimme a second\nq - quit the program")'
+   print, format='(%"t - time statistics\ny - position statistics\nc - overall statistics for observation set\ns - scatter plots\nh - histograms\nw - gimme a second\nq - quit the program")'
    input=''
    wait, 1
    READ, input, PROMPT='Type an option here: '
@@ -50,13 +50,11 @@ while i eq 0 do begin
       'y': begin
          ee_ystats, arr, dates, counts
          wait, 1
-         STOP, "Type .c when you're done with the data."
       end
 
       'c': begin
          ee_overallstats, arr, dates, counts
          wait, 1
-         STOP, "Type .c when you're done with the data."
       end
       
       'q': begin
@@ -75,6 +73,12 @@ while i eq 0 do begin
       'w': begin
          STOP, "Ok, giving you a second! Type .c to continue when you're ready."
          j=1
+      end
+
+      'h': begin
+         ee_hist, arr, dates, counts
+         j=1
+         break
       end
       
       else: begin
