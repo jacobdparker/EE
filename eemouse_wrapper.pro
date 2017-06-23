@@ -25,7 +25,7 @@
      eemouse,startdir = data_path,resume = resume, wrapper_state
         
   
-     ;STOP,'Type .c if you are done with a given OBS.'
+     STOP,'Type .c if you are done with a given OBS.'
      wrapper_state +=1
      save,wrapper_state,file='ee_wrapper_state.sav'
      ee_dataclear,ee_dir

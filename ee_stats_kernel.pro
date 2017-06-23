@@ -27,86 +27,40 @@ endif else begin
    arr=ee_box_data(files)
    print, 'Assigning event counts...'
    counts=ee_event_counts(files)
+   save, arr, dates, counts, file="variables.sav"
    files=!NULL                  ;free memory
 endelse
 
 i=0
-j=0
+
 while i eq 0 do begin
    print, format='(%"\nType one of the letters below to perform its corresponding analysis.")'
    print, format='(%"t - time statistics\ny - position statistics\nc - overall statistics for observation set\ns - scatter plots\nh - histograms\nw - gimme a second\nq - quit the program")'
    input=''
-   wait, 1
    READ, input, PROMPT='Type an option here: '
 
    case input of
-      't': begin
-         ee_timestats, arr, dates, counts
-         wait, 1
-         STOP, "Type .c when you're done with the data."
-         break
-      end
+      't':  ee_timestats, arr, dates, counts
 
-      'y': begin
-         ee_ystats, arr, dates, counts
-         wait, 1
-      end
+      'y':  ee_ystats, arr, dates, counts
 
-      'c': begin
-         ee_overallstats, arr, dates, counts
-         wait, 1
-      end
+      'c':  ee_overallstats, arr, dates, counts
       
       'q': begin
          print, "Exiting the program..."
          i=1
-         j=1
-         break
       end
 
-      's': begin
-         ee_scatter, arr, dates, counts
-         j=1
-         break
-      end
+      's':  ee_scatter, arr, dates, counts
 
-      'w': begin
-         STOP, "Ok, giving you a second! Type .c to continue when you're ready."
-         j=1
-      end
+      'w':  STOP, "Ok, giving you a second! Type .c to continue when you're ready."
 
-      'h': begin
-         ee_hist, arr, dates, counts
-         j=1
-         break
-      end
+      'h': ee_hist, arr, dates, counts
       
-      else: begin
-         print, "Invalid input."
-         wait, 2
-      endelse
+      else:  print, "Invalid input."
       
    endcase
 
-       while j eq 0 do begin
-          char=''
-          read, char, PROMPT='Continue program? (y/n) '
-          if (char eq 'y') or (char eq 'yes') then begin
-             wait, 1
-             break
-          endif
-          if (char eq 'n') or (char eq 'no') then begin
-             print, "Exiting..."
-             i=1
-             wait, 2
-             break
-          endif else begin
-             print, "Invalid input."
-             wait, 1
-             continue
-          endelse
-       endwhile
-           
-    endwhile
+endwhile
 
 end

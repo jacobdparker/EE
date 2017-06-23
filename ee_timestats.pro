@@ -1,11 +1,6 @@
 ;PROGRAM: ee_timestats
-;PURPOSE:
-; 1. Compute length of time of each boxed event from eemouse
-; 2. Compute average length of time for all events
-; 3. Compute average length of time of event for each observation and plot
-; 4. Plot each event against its date such that the size of the dot
-; corresponds to the length of the event
-; 5. Save plots to a directory of time plots
+;PURPOSE: compute time length of image boxes and plot against
+;         different values
 ;PARAMETERS:
 ;  dat_array=4x100x31 array containing dimension data for event boxes
 ;  dates=array of Julian dates of each observation
@@ -17,41 +12,34 @@
 ;     observation
 ;  dev_lens=array of standard deviations of lengths of each event
 ;     during each observation
-;  obs=counting variable
+;  obs,i,n=counting variable
 ;  x0,x1=temporary arrays containing beginning and ending time
 ;  timefiles=filepaths leading to actual observation times
 ;  char=character variable for plot/computation selection
-;SAVES: Plots are saved into a directory containing time plots (TBA)
+;PRODUCES: plots
 ;AUTHOR(S): A.E. Bartz, 6/9/17
-pro ee_timestats, dat_array, dates, counts, errbars=errbars
+pro ee_timestats, dat_array, dates, counts
 ;Initialize arrays & find observation time filepaths
   depth=n_elements(counts)
   lengths=fltarr(100,depth)
   avg_lens=fltarr(depth)
   dev_lens=fltarr(depth)
-  avg_height=fltarr(depth)
-  heights=fltarr(100,depth)
   timefiles=file_search('../EE_Data','dateobs*.sav')
   
 ;Compute arrays containing each event's length and the average length
   for obs=0,depth-1 do begin
      x0=dat_array[*,0,obs]
      x1=dat_array[*,1,obs]
-     y0=dat_array[*,2,obs]
-     y1=dat_array[*,3,obs]
      
 ;Crop data arrays to actual number of events to omit extra zeroes
      x0=x0[0:counts[obs]]
      x1=x1[0:counts[obs]]
-     y0=y0[0:counts[obs]]
-     y1=y1[0:counts[obs]]
      
 ;Compute average length of time of events and standard deviations     
      obs_lens=ee_boxlength(x0,x1,timefiles[obs])
      avg_lens[obs]=mean(obs_lens)
      dev_lens[obs]=stddev(obs_lens)
      lengths[0,obs]=obs_lens
-     heights[0,obs]=y1-y0
   endfor
 
   
@@ -80,16 +68,18 @@ pro ee_timestats, dat_array, dates, counts, errbars=errbars
 
         'l': begin
 ;Plot the length of each box against date,toggle with/without error bars
-           b=plot(make_array(counts[0],value=dates[0]), lengths[0:counts[0],0], $
+           b=plot(make_array(counts[0],value=dates[0]), $
+                  lengths[0:counts[0],0], $
                   /WIDGETS, symbol='o', /sym_filled, linestyle=6, $
                   rgb_table=43,sym_transparency=50,$
                   xrange=[dates[0]-50,dates[-1]+50], xtickinterval=365, $
                   xtitle='Julian date',ytitle='Hours',$
                   title='Time length of all event boxes')
            for n=1,31 do begin
-              b=plot(make_array(counts[n],value=dates[n]), lengths[0:counts[n],n], $
-                            symbol='o', /sym_filled, rgb_table=43, linestyle=6,$
-                            sym_transparency=50,/OVERPLOT)
+              b=plot(make_array(counts[n],value=dates[n]), $
+                     lengths[0:counts[n],n], $
+                     symbol='o', /sym_filled, rgb_table=43, linestyle=6,$
+                     sym_transparency=50,/OVERPLOT)
            endfor
         end
 

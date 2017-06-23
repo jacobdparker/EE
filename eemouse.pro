@@ -107,7 +107,7 @@ pro eemouse, resume=resume, preprocess=preprocess, startdir=startdir, wrapper_st
 ;tv, logo, /true
 
 ;Select and load dataset.
-
+  ;resume=0
 if keyword_set(resume) then begin
    ee_resume,startdir=startdir ;Separate routine eliminates collision of common blocks, i hope...
    return
@@ -122,7 +122,7 @@ endif else begin
    rasterfile = dialog_pickfile(title='Select L2 Raster File', get_path=rasterdir)
 endelse
 read_iris_l2, rasterfile, SiIV_index, SiIV_data, wave = 'Si IV'
-ee_fits_save, siiv_index[0], wrapper_state, rasterdir
+;ee_fits_save, siiv_index[0], wrapper_state, rasterdir
 
 sjifile = dialog_pickfile(title='Select L2 SJI File', path=rasterdir)
 

@@ -10,6 +10,7 @@
 ;  naxis=number of pixels along axis
 ;  cdelt=conversion value between pixels and a physical unit
 ;  xcen,ycen=location of the center of the image on the solar disk
+;  crval=solar_y and solar_x
 ;  name=the name of the file to be saved, "obsinfo#.sav"
 ;PRODUCES: obsinfo#.sav
 ;AUTHOR(s): A.E. Bartz 6/16/17
@@ -18,12 +19,15 @@ pro ee_fits_save, head, wrapper_state, rasterdir
 ;These values are the same for all of the rasters in our image
   crpix=[head.crpix1,head.crpix2,head.crpix3]
   cunit=[head.cunit1,head.cunit2,head.cunit3]
+  crval=[head.crval1,head.crval2,head.crval3]
   naxis=[head.naxis1,head.naxis2,head.naxis3]
   cdelt=[head.cdelt1,head.cdelt2]
   xcen=head.xcen
   ycen=head.ycen
+  fovx=head.fovx
+  fovy=head.fovy
 
   name=rasterdir+'obsinfo'+strcompress(string(wrapper_state), /remove_all)+'.sav'
 
-  save, crpix, cunit, naxis, cdelt, xcen, ycen, file=name
+  save, crpix, cunit, crval, naxis, cdelt, xcen, ycen, fovx, fovy, file=name
 end
