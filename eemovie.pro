@@ -8,7 +8,7 @@
 ;  use the ith layer of the raster.
 ;
 ;CALLING SEQUENCE:
-;  eemovie, [/mencoder]
+;  eemovie, [/mencoder], [/gunzip]
 ;
 ;INPUT PARAMETERS:
 ;  n/a
@@ -20,9 +20,10 @@
 ;MODIFICATION HISTORY:
 ;  2014-Jun-16 C. Kankelborg
 ;  2014-Jun-23 S. Jaeggli, added mencoder keyword, altered scaling
+;  2017-June-29 J. Parker, added eepath keyword
 
 
-pro eemovie, mencoder=mencoder
+pro eemovie, eepath=eepath, mencoder=mencoder
 
   common widget_environment, img, didx, tidx, mouseread
   common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map
@@ -31,11 +32,15 @@ pro eemovie, mencoder=mencoder
   device, get_decomposed=old_decomposed
   device, decomposed=0
 
-
+  
   ;Load an ee.sav file.
-  eefile = dialog_pickfile(title='Select ee.sav file', get_path=new_rasterdir) 
+  
+  ;if keyword_set(eepath) then eefile= eepath else begin
+     
+     eefile = dialog_pickfile(title='Select ee.sav file',path = eepath,  get_path=new_rasterdir)
+  ;endelse 
   ;rasterdir gets redefine here.
-  restore, eefile
+     restore, eefile
 
 
   ;See if the directory has changed since last time.
