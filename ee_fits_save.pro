@@ -26,8 +26,13 @@ pro ee_fits_save, head, wrapper_state, rasterdir
   ycen=head.ycen
   fovx=head.fovx
   fovy=head.fovy
+  dateobs=head.date_obs
 
-  name=rasterdir+'obsinfo'+strcompress(string(wrapper_state), /remove_all)+'.sav'
-
+;name and save position information
+  name=rasterdir+'obsinfo2_'+strcompress(string(wrapper_state),/remove_all)+'.sav'
   save, crpix, cunit, crval, naxis, cdelt, xcen, ycen, fovx, fovy, file=name
+
+;name and save time information
+  name=rasterdir+'dateobs2_'+strcompress(string(wrapper_state),/remove_all)+'.sav'
+  save, dateobs, file=name
 end
