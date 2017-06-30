@@ -2,7 +2,7 @@
 ;analyze.  It reads in the files and sets up ee common blocks.
 
 
-pro eerestore, eepath, restor
+pro eerestore, eepath
 
   common widget_environment, img, didx, tidx, mouseread
   common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map, goodmap, goodmap_1403
@@ -43,15 +43,11 @@ pro eerestore, eepath, restor
   
 
 ;Process 1403 line for calibration
-  message,'Despiking Si 1403...', /informational
-  if restor eq 0 then begin
+
+   message,'Despiking Si 1403...', /informational
  
-     si_1403_data = despik(si_1403_data,  sigmas=4.0, Niter=10, $
-                         min_std=4.0, goodmap=goodmap_1403) ;DESPIKE.
-  endif else begin
-     si_1403_data = despik(si_1403_data, sigmas=4.0, Niter=10, $
-                         min_std=4.0, goodmap=goodmap_1403, /restore)
-  endelse
+   si_1403_data = despik(si_1403_data,  sigmas=4.0, Niter=10, $
+                         min_std=4.0, goodmap=goodmap_1403)     ;DESPIKE.
   message,'Removing instrumental background...', /informational
   dark_model = fuv_bg_model(si_1403_data, percentile=35, /replace) ;background subtraction
 
