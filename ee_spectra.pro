@@ -1,7 +1,7 @@
 ;SCRIPT: ee_spectra
 ;PURPOSE: load 1394 & 1403 A Silicon IV line data and perform optical
 ;depth analyses
-;CALLING SEQUENCE: .r ee_spectra
+;CALLING SEQUENCE: ee_spectra
 ;AUTHOR(S): A.E. Bartz, 6/27/17
 
 pro ee_spectra
@@ -38,8 +38,13 @@ pro ee_spectra
            wrapper_state++
            save, wrapper_state, file="ee_wrapper_state.sav"
            continue
-        endif
+        endif else begin
+           restore, rasterdir+"goodmap1403_"+strmid(eefiles[wrapper_state],25,9)
+           restor=1
+        endelse
      endif
+
+ 
      
 ;If we already have a goodmap for 1403 data, then restore and send the
 ;message to despike so it doesn't despike the whole thing again     
@@ -47,7 +52,9 @@ pro ee_spectra
      if file ne "" then begin
         restore, file
         restor=1
-     endif else restor=0
+     endif
+
+     if restor ne 1 then restor=0
      
 ;Send ee file and fits filepath to eerestore to despike and load data
      print, "Sending data to despike"
@@ -59,8 +66,8 @@ pro ee_spectra
      lambda_1403=si_1403_index[0].wavemin+si_1403_index[0].cdelt1*findgen(si_1403_index[0].naxis1)
 
 ;Find central wavelengths for Si IV lines
-     lambda0_1394=si_1394_index.wavelnth
-     lambda0_1403=si_1403_index.wavelnth
+     lambda0_1394=si_1394_index[0].wavelnth
+     lambda0_1403=si_1403_index[0].wavelnth
 
 ;Make velocity axes and find cutoff indices (cutoff +/-100 km/s)    
      velocity_1394=3e5*(lambda_1394-lambda0_1394)/lambda0_1394 ;km/s
@@ -80,6 +87,8 @@ pro ee_spectra
      velocity_1403=velocity_1403(indices_1403)
      sum_1403=sum_1403(indices_1403,*)
 
+
+     STOP
 ;Free memory for arrays we won't use again
      undefine, indices_1394
      undefine, indices_1403
@@ -157,7 +166,7 @@ pro ee_spectra
 ;;         if diff eq 0 then lineratio=int_1394/sum_1403(*,0:sz_1394[2])
 ;;         if diff gt 0 then lineratio=int_1394/sum_1403((diff-1):n_elements(sum_1403)-diff)
 ;;      endif
-
+STOP
 
 ;Remove fits files & clear memory so we can save plots if needed
      ee_dataclear, ee_obs_path[wrapper_state]
