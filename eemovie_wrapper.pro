@@ -1,12 +1,15 @@
 restore, 'ee_obs_paths.sav'
-  for i = 0,n_elements(ee_obs_path) do begin
+  for i = 20,n_elements(ee_obs_path)-1 do begin
+     print,i
+     
      ee_dir = ee_obs_path[i]
      ee_gunzip, ee_dir, data_path
-     STOP
-     eemovie, eepath = data_path,/mencoder
+   
+   
+     eemovie, eepath = [data_path,ee_dir] ,/ffmpeg,/quiet
      STOP
      ee_dataclear,ee_dir
-     STOP
+
   end
 
 end
