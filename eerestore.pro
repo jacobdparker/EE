@@ -46,10 +46,10 @@ pro eerestore, eepath, restor
   message,'Despiking Si 1403...', /informational
   if restor eq 0 then begin
  
-     si_1403_data = despik(si_1403_data,  sigmas=4.0, Niter=10, $
+     si_1403_data = despik(si_1403_data,  sigmas=4.0, Niter=20, $
                          min_std=4.0, goodmap=goodmap_1403) ;DESPIKE.
   endif else begin
-     si_1403_data = despik(si_1403_data, sigmas=4.0, Niter=10, $
+     si_1403_data = despik(si_1403_data, sigmas=4.0, Niter=20, $
                          min_std=4.0, goodmap=goodmap_1403, /restore)
   endelse
   message,'Removing instrumental background...', /informational

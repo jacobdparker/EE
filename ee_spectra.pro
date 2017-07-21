@@ -10,7 +10,7 @@ pro ee_spectra
   common data, si_1394_index,si_1394_data,sjiindex,sjidata,si_1403_index, si_1403_data,fe_index,fe_data
   
 ;Find the ee files needed and restore fits filepaths
-  eefiles=file_search('../EE_Data','ee_*.sav')
+  eefiles=file_search('../EE_Data','ee_*_15.sav')
   restore, "ee_obs_paths.sav"
   nfiles=n_elements(eefiles)
   obstimes=file_search('../EE_Data','dateobs*.sav')
@@ -31,7 +31,7 @@ pro ee_spectra
      print, "Restoring ee files..."
      restore, eefiles[wrapper_state]
      restore, obstimes[wrapper_state]
-     if file_search(rasterdir,"goodmap1403_"+strmid(eefiles[wrapper_state],25,9)) ne "" then begin
+     if file_search(rasterdir,"goodmap1403_"+strmid(eefiles[wrapper_state],25,5)+"_15.sav") ne "" then begin
         char=''
         read, char, prompt="There seems to already be a goodmap1403 file in this directory. Press N to continue to next iteration or any other key to continue: "
         if ((char eq 'n') or (char eq 'N')) then begin
@@ -39,7 +39,7 @@ pro ee_spectra
            save, wrapper_state, file="ee_wrapper_state.sav"
            continue
         endif else begin
-           restore, rasterdir+"goodmap1403_"+strmid(eefiles[wrapper_state],25,9)
+           restore, rasterdir+"goodmap1403_"+strmid(eefiles[wrapper_state],25,5)+"_15.sav"
            restor=1
         endelse
      endif
@@ -189,7 +189,7 @@ STOP
 
 ;If continue then save final version of goodmap_1403
      STOP, "Stopping so you can save plots. Press .c to continue"
-     file_move, rasterdir+"goodmap1403.sav", rasterdir+"goodmap1403_"+strmid(eefiles[wrapper_state],25,9)
+     file_move, rasterdir+"goodmap1403.sav", rasterdir+"goodmap1403_"+strmid(eefiles[wrapper_state],25,5)+"_15.sav"
      wrapper_state++
      save, wrapper_state, file="ee_wrapper_state.pro"
      print, "Continuing on to iteration number"+string([wrapper_state])

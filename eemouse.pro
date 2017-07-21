@@ -97,7 +97,7 @@ end
 ;     The user is prompted to re-identify rasterfile and sjifile.
 ;  2017-May-17 JDP modified to store ee.sav in the rasterdir and takes an input
 ;     directory and filename
-pro eemouse, resume=resume, preprocess=preprocess, startdir=startdir, wrapper_state
+pro eemouse, resume=resume, preprocess=preprocess, startdir=startdir, wrapper_state=wrapper_state, where_box=where_box
 
 ;logo = read_png('mouse.png')
 ;logosize=size(logo)
@@ -120,7 +120,7 @@ if keyword_set(startdir) then begin
 endif else begin
    rasterfile = dialog_pickfile(title='Select L2 Raster File', get_path=rasterdir)
 endelse
-read_iris_l2, rasterfile, SiIV_index, SiIV_data, wave = 'Si IV 1403'
+read_iris_l2, rasterfile, SiIV_index, SiIV_data, wave = 'Si IV'
 ;ee_fits_save, siiv_index[0], wrapper_state, rasterdir
 
 sjifile = dialog_pickfile(title='Select L2 SJI File', path=rasterdir)
@@ -128,7 +128,7 @@ sjifile = dialog_pickfile(title='Select L2 SJI File', path=rasterdir)
 
 ;Data reduction
 message,'Despiking...', /informational
-SiIV_data = despik(temporary(SiIV_data),  sigmas=4.0, Niter=10, min_std=4.0,goodmap=goodmap) ;DESPIKE.
+SiIV_data = despik(temporary(SiIV_data),  sigmas=4.0, Niter=20, min_std=4.0,goodmap=goodmap) ;DESPIKE.
 message,'Removing instrumental background...', /informational
 dark_model = fuv_bg_model(SiIV_data, percentile=35, /replace) ;background subtraction
 
@@ -150,17 +150,20 @@ endfor
 
 if keyword_set(preprocess) then begin ;end here with no widget work.
    message,'saving '+rasterdir+'ee.sav', /informational
-   save, rasterfile, rasterdir, sjifile, SiIV_EE_map, file=rasterdir+'ee.sav'
+   save, rasterfile, rasterdir, sjifile, SiIV_EE_map, file=rasterdir+'ee_15.sav'
    return 
 endif
 
-;Call saj_select_boxes   
+;Call saj_select_boxes
+
+restore, where_box
+
 common widget_environment, img, didx, tidx, mouseread 
    ;make results of saj_select_boxes available in this scope.
 saj_select_boxes, SiIV_EE_map>70<2000                         ;?? Arbitrary thresholding here ??
 widget_control, didx.base, kill_notify='ee_structify'
    ;When select_boxes quits, didx.base will be destroyed, and the result
    ;will be a call to ee_structify.
-
+ 
 
 end
