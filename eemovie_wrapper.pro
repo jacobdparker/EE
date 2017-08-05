@@ -1,6 +1,7 @@
 restore, 'ee_obs_paths.sav'
   
   for i = 0,n_elements(ee_obs_path)-1 do begin
+   
      print,i
      if ((i eq 2) or (i eq 6) or (i eq 20) or (i eq 26)) then continue
 

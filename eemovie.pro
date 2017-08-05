@@ -32,9 +32,7 @@ pro eemovie, eepath=eepath, mencoder=mencoder, ffmpeg=ffmpeg , quiet=quiet, $
   
   
   
-  device, get_decomposed=old_decomposed
-  device, decomposed=0
-  
+ 
 
 
 ;Load an ee.sav file.
@@ -126,18 +124,26 @@ pro eemovie, eepath=eepath, mencoder=mencoder, ffmpeg=ffmpeg , quiet=quiet, $
   time_sji  = anytim( sjiindex.date_obs,/TAI)
 
                                 ;Create movie frames.
+
+
   if keyword_set(quiet) then begin
-     buffer=1                    
-     win = window(dimensions = [Nlambda+Nx, Ny], window_title='Movie Frame',buffer=buffer,/widgets)
+
+
+     PREF_SET, 'IDL_GR_X_RENDERER', 1, /COMMIT ;This seems to be needed to get function graphics to work
+     buffer=1
+    
+    
 
 
      file_mkdir, rasterdir+'movie_jpg'
-     
+    
      for i=0, Nt_SiIV-1 do begin
-        loadct, '0'
+     
+
+         win = window(dimensions = [Nlambda+Nx, Ny], window_title='Movie Frame',buffer=buffer)
 
         foo = min( abs(time_SiIV[i] - time_sji), j ) ;identify nearest-in-time SJI.
-        frame = image( [ rastbyte[*,*,i], sjibyte[*,*,j] ],/current,margin=0) ;ith movie frame uses jth SJI.
+        frame = image( [ rastbyte[*,*,i], sjibyte[*,*,j] ],/current,margin=0,rgb_table=0) ;ith movie frame uses jth SJI.
         t = text(2, 2, rasterindex[i].date_obs, font_size=12, /device,font_color="white") ;annotate frame with time.
         
 
@@ -190,6 +196,10 @@ pro eemovie, eepath=eepath, mencoder=mencoder, ffmpeg=ffmpeg , quiet=quiet, $
      endfor
   endif else begin
 
+ device, get_decomposed=old_decomposed
+  device, decomposed=0
+  
+     
      win = window(dimensions = [Nlambda+Nx, Ny], window_title='Movie Frame',buffer=buffer,/widgets)
     
      file_mkdir, rasterdir+'movie_jpg'
@@ -267,10 +277,12 @@ pro eemovie, eepath=eepath, mencoder=mencoder, ffmpeg=ffmpeg , quiet=quiet, $
             'movie.avi -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=10000:vpass=2'
   endif
 
+  
   if keyword_set(ffmpeg) eq 1 then begin
-     spawn, 'ffmpeg  -i' +rasterdir+'movie_jpg/*.jpg -vf scale=1280:-2'+ rasterdir+strmid(eefile,11,8,/reverse_offset)+'.mp4'
+     spawn, 'rm -f '+ rasterdir+strmid(eefile,11,8,/reverse_offset)+'.mp4'
+     spawn, 'ffmpeg -i ' +rasterdir+'movie_jpg/%05d.jpg -vf scale=1280:-2 '+ rasterdir+strmid(eefile,11,8,/reverse_offset)+'.mp4'
      spawn, 'rm -rf '+ rasterdir+'movie_jpg/'
   endif 
-  device, decomposed=old_decomposed
+  ;device, decomposed=old_decomposed
 
 end
