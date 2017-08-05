@@ -9,7 +9,7 @@ function ee_boxheights, y0, y1, fitshead
 
   restore, fitshead
 ;Compute actual heights for y0
-  y0=y0*cdelt[0]
+  y0=y0*cdelt[1]
   
 ;Compute actual heights for y1
   y1=y1*cdelt[1]

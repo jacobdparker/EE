@@ -27,7 +27,7 @@
 pro ee_scatter, dat_array, dates, counts
 
 ;Initialize arrays & find observation time filepaths
-  depth=n_elements(counts)
+  depth=n_elements(counts)-4
   lengths=[]
   heights=[]
   avg_lens=fltarr(depth)
@@ -75,23 +75,28 @@ pro ee_scatter, dat_array, dates, counts
                   /sym_filled, sym_transparency=50, rgb_table=43, $
                   title='Height of boxes versus length of boxes', $
                   xtitle='Time length of boxes (hours)', $
-                  ytitle='Slit height of boxes (arcsec)')
+                  ytitle='Slit height of boxes (arcsec)',/buffer)
 
-                                ;Add trend line
-           fitline=linfit(lengths,heights, CHISQR=chisqr, COVAR=covar, $
-                          PROB=prob, SIGMA=sigma, measure_errors=measure, $
-                          YFIT=yfit)
-           fitx=findgen(100,increment=0.02)
-           fity=fitline[0]+fitx*fitline[1]
-           linplot=plot(fitx,fity, /OVERPLOT, color="red", thick=2, $
-                        linestyle=3, yrange=[0,225])
-                                ;Add trend line equation text
-           fitext=strcompress(string(fitline),/remove_all)
-           r=correlate(lengths,heights)
-           t1=text(1.25,50,/DATA,'Y='+fitext[0]+'+'+fitext[1]+'X',$
-                   font_size=8,'r')
-           t2=text(1.25,35,/DATA,'r='+strcompress(string(r),/remove_all),$
-                   'r',font_size=8)
+           ;;                      ;Add trend line
+           ;; fitline=linfit(lengths,heights, CHISQR=chisqr, COVAR=covar, $
+           ;;                PROB=prob, SIGMA=sigma, measure_errors=measure, $
+           ;;                YFIT=yfit)
+           ;; fitx=findgen(100,increment=0.02)
+           ;; fity=fitline[0]+fitx*fitline[1]
+           ;; linplot=plot(fitx,fity, /OVERPLOT, color="red", thick=2, $
+           ;;              linestyle=3, yrange=[0,225])
+           ;;                      ;Add trend line equation text
+           ;; fitext=strcompress(string(fitline),/remove_all)
+           ;; r=correlate(lengths,heights)
+           ;; t1=text(1.25,50,/DATA,'Y='+fitext[0]+'+'+fitext[1]+'X',$
+           ;;         font_size=8,'r')
+           ;; t2=text(1.25,35,/DATA,'r='+strcompress(string(r),/remove_all),$
+           ;;         'r',font_size=8)
+
+           ;Calculate general box statistics
+           indices=where(lengths lt 0.5 AND heights lt 30)
+           print, string(mean(lengths[indices]))+" hours"+string(stdev(lengths[indices]))
+           print, string(mean(heights[indices]))+" arcsec"+string(stdev(heights[indices]))
         end 
 
         'd': ee_discplot, lengths, heights, dates, counts, fitsheads, $

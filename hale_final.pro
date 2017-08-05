@@ -1,5 +1,7 @@
 pro hale_final
 
+; Requires use of eerestore before hand
+  
   common widget_environment, img, didx, tidx, mouseread
   common eemouse_environment, rasterfile, rasterdir, sjifile, SiIV_EE_map, goodmap
   common data, rasterindex,rasterdata,sjiindex,sjidata,si_1403_index, si_1403_data,fe_index,fe_data

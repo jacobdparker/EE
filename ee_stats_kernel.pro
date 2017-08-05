@@ -20,7 +20,7 @@ if varfile ne '' then begin
    print, "Data restored."
 endif else begin
    print, "Initializing data..."
-   files=file_search("../EE_Data","ee_*.sav")
+   files=file_search("../EE_Data","ee_*20.sav")
    print, 'Finding event dates...'
    dates=ee_pathdates(files)
    print, 'Assigning data boxes...'
