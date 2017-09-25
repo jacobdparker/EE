@@ -29,6 +29,65 @@ function ee_calchi, data_1394, data_1403, vel_1394, vel_1403
   return, chisq
 end
 
+;FUNCTION: ee_linecal
+;PURPOSE: calculate average line ratio on all of the pixels
+;RETURNS: line_ratio, an array of all of the line ratios
+;CALLING SEQUENCE: ee_linecal(data_1394, data_1403, vel_1394, vel_1403)
+;AUTHOR(S): A.E. Bartz, 7/15/17
+function ee_linecal, data_1394, data_1403, vel_1394, vel_1403
+  sz_1394=size(data_1394)
+  sz_1403=size(data_1403)
+  n_slit=sz_1394[2]
+  n_time=sz_1394[3]
+  line_ratio=fltarr(n_slit,n_time)
+
+  for slit=0,n_slit-1 do begin
+     if sz_1394[1] ge sz_1403[1] then begin
+        for t=0,n_time-1 do begin
+           int=interpol(data_1403[*,slit,t],vel_1403, vel_1394)
+           loc=where(data_1394[*,slit,t] eq max(data_1394[*,slit,t]))
+           loc=loc[0]
+           ;; FIX CASES WHERE LOC IS LONGER THAN ARRAY IS
+           line_ratio[slit,t]=mean(2*int[round(loc*0.8):round(loc*1.2)]/data_1394[round(0.8*loc):round(1.2*loc),slit,t])
+        endfor
+     endif else begin
+        for t=0,n_time-1 do begin
+           int=interpol(data_1394[*,slit,t],vel_1394, vel_1403)
+           loc=where(data_1403[*,slit,t] eq max(data_1403[*,slit,t]))
+           loc=loc[0]
+           line_ratio[slit,t]=mean(2*data_1403[round(loc*0.8):round(loc*1.2),slit,t]/int[round(0.8*loc):round(1.2*loc)])
+        endfor
+     endelse
+  endfor
+
+  return, line_ratio
+end
+
+;FUNCTION: ee_findint_ratio
+;PURPOSE: determine if an event has an average line ratio which is greater than
+;1.5 or less than 0.75 
+;RETURNS: 0 or 1 depending on the result of the above test
+;CALLING SEQUENCE: ee_findint_ratio(line_ratio)
+;AUTHOR: A.E.Bartz, 9/15/17
+function ee_findint_ratio, line_ratio
+
+  indices=where((line_ratio ge 1.5) or (line_ratio le 0.75))
+  if n_elements(indices) eq 1 then begin
+     if indices eq -1 then int=0 else begin
+        avg=mean(line_ratio[indices-3:indices+3])
+        if ((avg ge 1.5) or (avg le 0.75)) then int=1 else int=0
+     endelse
+  endif else begin
+     for n=0, n_elements(indices)-1 do begin
+        avg=mean(line_ratio[indices[n]-3:indices[n]+3])
+        if ((avg ge 1.5) or (avg le 0.75)) then int=1
+     endfor
+  endelse
+     
+  if int ne 1 then int=0
+  return, int
+end
+
 ;FUNCTION: ee_findint
 ;PURPOSE: determine if an event has values where chi squared is larger
 ;than the mean times a chosen scalar alpha
@@ -192,12 +251,12 @@ pro ee_boxspectra, alpha, Niter
      current_dir=strmid(boxfiles[wrapper_state],0,22) 
      despike=0
      
-     if file_search(current_dir, "si_data_"+strmid(boxfiles[wrapper_state],28,5)+"_20.sav") ne "" then restore, file_search(current_dir, "si_data_"+strmid(boxfiles[wrapper_state],28,5)+"_20.sav") else despike=1
+     if file_search(current_dir, "si_data_"+strmid(boxfiles[wrapper_state],28,5)+"_15.sav") ne "" then restore, file_search(current_dir, "si_data_"+strmid(boxfiles[wrapper_state],28,5)+"_15.sav") else despike=1
         
      if despike eq 1 then begin
 ;If we have to despike, see if there is already a file we can despike
 ;with and pass the search results into the restore function        
-        eefile=file_search(current_dir, "ee_"+strmid(boxfiles[wrapper_state],28,5)+"_20.sav")
+        eefile=file_search(current_dir, "ee_"+strmid(boxfiles[wrapper_state],28,5)+"_15.sav")
         if eefile eq "" then eefile=file_search(current_dir, "ee.sav")
            
         gmapfile=file_search(current_dir,"goodmap_1403_"+strmid(boxfiles[wrapper_state],28,5)+"_20.sav")         
@@ -267,11 +326,17 @@ pro ee_boxspectra, alpha, Niter
 
 
 ;Chi squared calculation at all observation times
-        chisq=ee_calchi(current_1394_data,current_1403_data,velocity_1394,velocity_1403)
+        ;; chisq=ee_calchi(current_1394_data,current_1403_data,velocity_1394,velocity_1403)
+       
+;Line ratio calculation at all observation times
+       line_ratio=ee_linecal(current_1394_data, current_1403_data, velocity_1394, velocity_1403)
 
 ;Determine which events are "interesting" based on alpha
-        interesting[wrapper_state,i]=ee_findint(chisq, alpha)
+       ;; interesting[wrapper_state,i]=ee_findint(chisq, alpha)
         
+;Determine which events are "interesting" based on line ratio
+       interesting = ee_findint_ratio(line_ratio)
+
 ;If the event is interesting, plot the spectrum at maximum chi
         if interesting[wrapper_state,i] eq 1 then begin
            chi_struct={chisq:chisq,current_1394_data:current_1394_data,current_1403_data:current_1403_data,velocity_1394:velocity_1394,velocity_1403:velocity_1403}
@@ -288,6 +353,7 @@ pro ee_boxspectra, alpha, Niter
      wrapper_state++
      save, wrapper_state, file="ee_wrapper_state.sav"
      save, interesting, file="ee_interesting.sav"
+STOP
      print, "Continuing on to iteration number"+string([wrapper_state])
   endwhile 
   
