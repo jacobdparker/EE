@@ -33,29 +33,44 @@ end
 ;PURPOSE: calculate average line ratio on all of the pixels
 ;RETURNS: line_ratio, an array of all of the line ratios
 ;CALLING SEQUENCE: ee_linecal(data_1394, data_1403, vel_1394, vel_1403)
-;AUTHOR(S): A.E. Bartz, 7/15/17
+;AUTHOR(S): A.E. Bartz, 9/15/17, updated 9/27/17
 function ee_linecal, data_1394, data_1403, vel_1394, vel_1403
+;;Define constants we'll need
   sz_1394=size(data_1394)
   sz_1403=size(data_1403)
   n_slit=sz_1394[2]
   n_time=sz_1394[3]
   line_ratio=fltarr(n_slit,n_time)
 
+;Begin looping over the time and over the slit, determine which dataset to interpolate 
   for slit=0,n_slit-1 do begin
      if sz_1394[1] ge sz_1403[1] then begin
         for t=0,n_time-1 do begin
            int=interpol(data_1403[*,slit,t],vel_1403, vel_1394)
+
+ ;;Set limits of +/- 20% of pixels surrounding maximum value
            loc=where(data_1394[*,slit,t] eq max(data_1394[*,slit,t]))
            loc=loc[0]
-           ;; FIX CASES WHERE LOC IS LONGER THAN ARRAY IS
-           line_ratio[slit,t]=mean(2*int[round(loc*0.8):round(loc*1.2)]/data_1394[round(0.8*loc):round(1.2*loc),slit,t])
+           max=round(0.2*sz_1394[1])+loc
+           if max gt sz_1394[1]-1 then max=sz_1394[1]-1
+           min=loc-round(0.2*sz_1394[1])
+           if min lt 0 then min=0
+
+;;Calculate the line ratio over the pixels surrounding the line           
+           line_ratio[slit,t]=mean(2*int[min:max]/data_1394[min:max,slit,t])
         endfor
      endif else begin
         for t=0,n_time-1 do begin
            int=interpol(data_1394[*,slit,t],vel_1394, vel_1403)
+
            loc=where(data_1403[*,slit,t] eq max(data_1403[*,slit,t]))
            loc=loc[0]
-           line_ratio[slit,t]=mean(2*data_1403[round(loc*0.8):round(loc*1.2),slit,t]/int[round(0.8*loc):round(1.2*loc)])
+           max=round(0.2*sz_1403[1])+loc
+           if max gt sz_1403[1]-1 then max=sz_1403[1]-1
+           min=loc-round(0.2*sz_1403[1])
+           if min lt 0 then min=0
+           
+           line_ratio[slit,t]=mean(2*data_1403[min:max, slit, t]/int[min:max])
         endfor
      endelse
   endfor
@@ -70,17 +85,103 @@ end
 ;CALLING SEQUENCE: ee_findint_ratio(line_ratio)
 ;AUTHOR: A.E.Bartz, 9/15/17
 function ee_findint_ratio, line_ratio
-
+  
   indices=where((line_ratio ge 1.5) or (line_ratio le 0.75))
+  sz_arr=size(line_ratio)
+  int=0
+  
   if n_elements(indices) eq 1 then begin
      if indices eq -1 then int=0 else begin
-        avg=mean(line_ratio[indices-3:indices+3])
+        i=array_indices(line_ratio, indices[0]) ;establish the location of the pixel
+;Assign limits of box to calculate line ratios
+        if ((i[0]-2 lt 0) AND (i[0]+2 gt sz_arr[1]-1)) then begin
+           xmin=0
+           xmax=sz_arr[1]-1
+        endif else begin
+           if (i[0]+2 gt sz_arr[1]-1) then begin
+              xmin=i[0]-2
+              xmax=sz_arr[1]-1
+           endif else begin
+              if (i[0]-2 lt 0) then begin
+                 xmin=0
+                 xmax=i[0]+2
+              endif else begin
+                 xmin=i[0]-2
+                 xmax=i[0]-2
+              endelse
+           endelse
+        endelse
+
+        if ((i[1]+2 gt sz_arr[2]-1) AND (i[1]-2 lt 0)) then begin
+           ymin=0
+           ymax=sz_arr[2]-1
+        endif else begin
+           if (i[1]-2 lt 0) then begin
+              ymin=0
+              ymax=i[1]+2
+           endif else begin
+              if (i[1]+2 gt sz_arr[2]-1) then begin
+                 ymin=i[1]-1
+                 ymax=sz_arr[2]-1
+              endif else begin
+                 ymin=i[1]-2
+                 ymax=i[1]+2
+              endelse
+           endelse
+        endelse
+
+
+;Calculate average line ratios within box limits        
+        avg=mean(line_ratio[xmin:xmax,ymin:ymax])
+        
         if ((avg ge 1.5) or (avg le 0.75)) then int=1 else int=0
      endelse
   endif else begin
      for n=0, n_elements(indices)-1 do begin
-        avg=mean(line_ratio[indices[n]-3:indices[n]+3])
-        if ((avg ge 1.5) or (avg le 0.75)) then int=1
+        i=array_indices(line_ratio, indices[n]) ;establish the location of the pixel
+;Assign limits of box to calculate line ratios
+        if ((i[0]-2 lt 0) AND (i[0]+2 gt sz_arr[1]-1)) then begin
+           xmin=0
+           xmax=sz_arr[1]-1
+        endif else begin
+           if (i[0]+2 gt sz_arr[1]-1) then begin
+              xmin=i[0]-2
+              xmax=sz_arr[1]-1
+           endif else begin
+              if (i[0]-2 lt 0) then begin
+                 xmin=0
+                 xmax=i[0]+2
+              endif else begin
+                 xmin=i[0]-2
+                 xmax=i[0]-2
+              endelse
+           endelse
+        endelse
+
+        if ((i[1]+2 gt sz_arr[2]-1) AND (i[1]-2 lt 0)) then begin
+           ymin=0
+           ymax=sz_arr[2]-1
+        endif else begin
+           if (i[1]-2 lt 0) then begin
+              ymin=0
+              ymax=i[1]+2
+           endif else begin
+              if (i[1]+2 gt sz_arr[2]-1) then begin
+                 ymin=i[1]-1
+                 ymax=sz_arr[2]-1
+              endif else begin
+                 ymin=i[1]-2
+                 ymax=i[1]+2
+              endelse
+           endelse
+        endelse
+
+;Calculate average line ratios within box limits        
+        avg=mean(line_ratio[xmin:xmax,ymin:ymax])
+        if ((avg ge 1.5) or (avg le 0.75)) then begin
+           int=1
+           break
+        endif
      endfor
   endelse
      
@@ -226,7 +327,7 @@ pro ee_boxspectra, alpha, Niter
   
 ;If we've already saved some interesting events, load them,
 ;otherwise start the "interesting events" array  
-  if file_search("ee_interesting.sav") ne "" then restore, "ee_interesting.sav" else interesting=fltarr(32,65)
+  if file_search("ee_interesting.sav") ne "" then restore, "ee_interesting.sav" else interesting=fltarr(nfiles,65)
 ;Alpha is our scalar to determine the interesting events
 
 ;Set the wrapper state - which file to start on?  
@@ -335,13 +436,13 @@ pro ee_boxspectra, alpha, Niter
        ;; interesting[wrapper_state,i]=ee_findint(chisq, alpha)
         
 ;Determine which events are "interesting" based on line ratio
-       interesting = ee_findint_ratio(line_ratio)
+       interesting[wrapper_state,i] = ee_findint_ratio(line_ratio)
 
 ;If the event is interesting, plot the spectrum at maximum chi
-        if interesting[wrapper_state,i] eq 1 then begin
-           chi_struct={chisq:chisq,current_1394_data:current_1394_data,current_1403_data:current_1403_data,velocity_1394:velocity_1394,velocity_1403:velocity_1403}
-           ee_maxspectra, timefiles[wrapper_state], mouseread.x0[i], chi_struct, i
-        endif
+;        if interesting[wrapper_state,i] eq 1 then begin
+;           chi_struct={chisq:chisq,current_1394_data:current_1394_data,current_;1403_data:current_1403_data,velocity_1394:velocity_1394,velocity_1403:velocity_;1403}
+;           ee_maxspectra, timefiles[wrapper_state], mouseread.x0[i], chi_struct, i
+;        endif
      endfor
      
      
@@ -353,7 +454,7 @@ pro ee_boxspectra, alpha, Niter
      wrapper_state++
      save, wrapper_state, file="ee_wrapper_state.sav"
      save, interesting, file="ee_interesting.sav"
-STOP
+
      print, "Continuing on to iteration number"+string([wrapper_state])
   endwhile 
   
